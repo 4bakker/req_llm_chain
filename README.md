@@ -229,6 +229,8 @@ chain = ReqLLMChain.new(model)
 
 ### Error Handling
 
+Following ReqLLM usage rules, pattern match on specific error types:
+
 ```elixir
 case ReqLLMChain.run(chain, max_iterations: 5) do
   {:ok, final_chain, response} ->
@@ -237,6 +239,16 @@ case ReqLLMChain.run(chain, max_iterations: 5) do
   {:error, :max_iterations_reached} ->
     IO.puts "Tool calling loop exceeded maximum iterations"
     
+  {:error, %ReqLLM.Error.API.RateLimit{retry_after: seconds}} ->
+    Logger.warn("Rate limited, retry after #{seconds}s")
+    :timer.sleep(seconds * 1000)
+    
+  {:error, %ReqLLM.Error.API.Authentication{}} ->
+    Logger.error("Authentication failed - check API key")
+    
+  {:error, %ReqLLM.Error.Invalid.Provider{provider: provider}} ->
+    Logger.error("Unsupported provider: #{provider}")
+    
   {:error, reason} ->
     IO.puts "Error: #{inspect(reason)}"
 end
@@ -244,29 +256,58 @@ end
 
 ### Tool Definition Examples
 
+Following ReqLLM usage rules for production-ready tools:
+
 ```elixir
-# Simple tool
-calculator_tool = ReqLLM.Tool.new!(
-  name: "calculate",
-  description: "Perform mathematical calculations",
+# Production tool with module callback (recommended)
+weather_tool = ReqLLM.Tool.new!(
+  name: "get_weather",
+  description: "Get current weather conditions for a specific location", 
   parameter_schema: [
-    expression: [type: :string, required: true]
+    location: [type: :string, required: true, doc: "City name or coordinates"],
+    units: [type: :string, default: "metric", doc: "Temperature units"]
   ],
-  callback: fn %{"expression" => expr}, _context ->
-    # Simple calculator logic
-    {:ok, "#{expr} = #{eval(expr)}"}
+  callback: {MyApp.WeatherAPI, :fetch_weather}
+)
+
+# Simple inline tool (development/testing)
+simple_tool = ReqLLM.Tool.new!(
+  name: "calculator",
+  description: "Perform basic calculations",
+  parameter_schema: [
+    expression: [type: :string, required: true, doc: "Math expression to evaluate"]
+  ],
+  callback: fn params ->
+    case params["expression"] do
+      "2+2" -> {:ok, "4"}
+      _ -> {:error, "Unsupported calculation"}
+    end
   end
 )
 
-# Tool with database access
-user_tool = ReqLLM.Tool.new!(
-  name: "get_user_info",
-  description: "Get user information from database",
-  parameter_schema: [
-    user_id: [type: :integer, required: true]
-  ],
-  callback: {UserService, :get_info}  # Uses custom context for DB connection
-)
+# Module implementation with proper error handling
+defmodule MyApp.WeatherAPI do
+  require Logger
+  
+  def fetch_weather(%{location: location, units: units}) do
+    case HTTPClient.get("/weather", location: location, units: units) do
+      {:ok, %{status: 200, body: data}} ->
+        {:ok, data}
+        
+      {:ok, %{status: 404}} ->
+        {:error, "Location not found"}
+        
+      {:error, reason} ->
+        Logger.error("Weather service error: #{inspect(reason)}")
+        {:error, "Weather service unavailable"}
+    end
+  rescue
+    error ->
+      Logger.error("Weather fetch failed: #{Exception.message(error)}")
+      {:error, "Unable to fetch weather data"}
+  end
+end
+# Additional examples available in examples/production_ready_example.exs
 ```
 
 ## Comparison to LangChain
