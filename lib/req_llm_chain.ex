@@ -181,7 +181,14 @@ defmodule ReqLLMChain do
 
   """
   @spec run_once(Chain.t()) :: {:ok, Chain.t(), ReqLLM.Response.t()} | {:error, term()}
-  defdelegate run_once(chain), to: Chain
+  def run_once(chain) do
+    try do
+      Chain.run_once(chain)
+    rescue
+      error ->
+        {:error, error}
+    end
+  end
 
   @doc """
   Runs the conversation with automatic tool calling loops.
@@ -205,7 +212,14 @@ defmodule ReqLLMChain do
   """
   @spec run(Chain.t(), pos_integer()) ::
           {:ok, Chain.t(), ReqLLM.Response.t()} | {:error, term()}
-  defdelegate run(chain, max_iterations \\ 10), to: Chain
+  def run(chain, max_iterations \\ 10) do
+    try do
+      Chain.run(chain, max_iterations)
+    rescue
+      error ->
+        {:error, error}
+    end
+  end
 
   @doc """
   Streams the conversation response.

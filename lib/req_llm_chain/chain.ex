@@ -95,13 +95,21 @@ defmodule ReqLLMChain.Chain do
   """
   @spec run_once(t()) :: {:ok, t(), ReqLLM.Response.t()} | {:error, term()}
   def run_once(chain) do
-    case ReqLLM.generate_text(chain.model, chain.context, build_req_options(chain)) do
-      {:ok, response} ->
-        updated_chain = %{chain | context: response.context}
-        {:ok, updated_chain, response}
+    try do
+      case ReqLLM.generate_text(chain.model, chain.context, build_req_options(chain)) do
+        {:ok, response} ->
+          updated_chain = %{chain | context: response.context}
+          {:ok, updated_chain, response}
 
+        {:error, error} ->
+          {:error, error}
+
+        error ->
+          {:error, error}
+      end
+    rescue
       error ->
-        error
+        {:error, error}
     end
   end
 
