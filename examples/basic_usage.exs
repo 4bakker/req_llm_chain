@@ -37,8 +37,8 @@ defmodule BasicExamples do
     try do
       case ReqLLMChain.run(chain) do
         {:ok, _updated_chain, response} ->
-          IO.puts("✅ #{response.text()}")
-          IO.puts("📊 Usage: #{inspect(response.usage())}")
+          IO.puts("✅ #{ReqLLM.Response.text(response)}")
+          IO.puts("📊 Usage: #{inspect(response.usage)}")
 
         {:error, %{__struct__: error_type} = error} when error_type in [ReqLLM.Error.API.Request, ReqLLM.Error.API.Authentication, ReqLLM.Error.Invalid.Parameter] ->
           IO.puts("⚠️  API error. To see real responses:")
@@ -77,7 +77,7 @@ defmodule BasicExamples do
     try do
       case ReqLLMChain.run(initial_chain) do
       {:ok, chain_with_response, response} ->
-        IO.puts("✅ #{response.text()}")
+        IO.puts("✅ #{ReqLLM.Response.text(response)}")
 
         # Continue the conversation with user's follow-up
         final_chain =
@@ -91,7 +91,7 @@ defmodule BasicExamples do
         IO.puts("\n🤖 Final Response:")
         case ReqLLMChain.run(final_chain) do
           {:ok, _final_chain, final_response} ->
-            IO.puts("✅ #{final_response.text()}")
+            IO.puts("✅ #{ReqLLM.Response.text(final_response)}")
           {:error, error} ->
             IO.puts("❌ Error in follow-up: #{inspect(error)}")
         end
@@ -150,17 +150,18 @@ defmodule BasicExamples do
     try do
       case ReqLLMChain.run(chain) do
       {:ok, final_chain, response} ->
-        IO.puts("✅ Final response: #{response.text()}")
-        IO.puts("📊 Usage: #{inspect(response.usage())}")
+        IO.puts("✅ Final response: #{ReqLLM.Response.text(response)}")
+        IO.puts("📊 Usage: #{inspect(response.usage)}")
         IO.puts("🔧 Tools used in conversation:")
 
         # Show the full conversation with tool calls
         messages = ReqLLMChain.messages(final_chain)
         Enum.each(messages, fn msg ->
+          text_content = extract_message_text(msg)
           case msg.role do
-            :system -> IO.puts("  💬 System: #{String.slice(msg.content, 0, 50)}...")
-            :user -> IO.puts("  👤 User: #{msg.content}")
-            :assistant -> IO.puts("  🤖 Assistant: #{String.slice(msg.content, 0, 100)}...")
+            :system -> IO.puts("  💬 System: #{String.slice(text_content, 0, 50)}...")
+            :user -> IO.puts("  👤 User: #{text_content}")
+            :assistant -> IO.puts("  🤖 Assistant: #{String.slice(text_content, 0, 100)}...")
             :tool -> IO.puts("  🔧 Tool result: [tool executed]")
           end
         end)
@@ -244,6 +245,17 @@ defmodule BasicExamples do
         end
       end
     )
+  end
+
+  # Helper function to extract text content from ReqLLM.Message
+  defp extract_message_text(%ReqLLM.Message{content: content}) when is_list(content) do
+    content
+    |> Enum.filter(&(&1.type == :text))
+    |> Enum.map_join(" ", & &1.text)
+  end
+
+  defp extract_message_text(%ReqLLM.Message{content: content}) when is_binary(content) do
+    content
   end
 end
 
