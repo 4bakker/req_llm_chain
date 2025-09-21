@@ -3,7 +3,7 @@
 # Advanced tool calling demo for ReqLLMChain
 # Shows realistic tool usage with custom context and error handling
 
-Mix.install([{:req_llm_chain, path: "."}])
+Mix.install([{:req_llm_chain, github: "4bakker/req_llm_chain"}])
 
 defmodule ToolCallingDemo do
   @moduledoc """

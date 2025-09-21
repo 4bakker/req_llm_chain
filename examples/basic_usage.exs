@@ -3,7 +3,7 @@
 # Basic usage examples for ReqLLMChain
 # Run with: elixir examples/basic_usage.exs
 
-Mix.install([{:req_llm_chain, path: "."}])
+Mix.install([{:req_llm_chain, github: "4bakker/req_llm_chain"}])
 
 defmodule BasicExamples do
   def run_all do
