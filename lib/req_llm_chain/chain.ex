@@ -72,15 +72,22 @@ defmodule ReqLLMChain.Chain do
   """
   @spec tools(t(), [ReqLLM.Tool.t()]) :: t()
   def tools(chain, tool_list) when is_list(tool_list) do
-    %{chain | tools: tool_list}
+    updated_tools = chain.tools ++ tool_list
+    %{chain | tools: updated_tools}
   end
 
   @doc """
-  Sets custom context data available to tools.
+  Adds custom context data available to tools.
+  Merges with existing custom context.
   """
-  @spec context(t(), map()) :: t()
+  @spec context(t(), map() | nil) :: t()
   def context(chain, custom_context) when is_map(custom_context) do
-    %{chain | custom_context: custom_context}
+    merged_context = Map.merge(chain.custom_context, custom_context)
+    %{chain | custom_context: merged_context}
+  end
+
+  def context(chain, nil) do
+    %{chain | custom_context: %{}}
   end
 
   @doc """

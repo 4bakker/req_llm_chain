@@ -96,11 +96,9 @@ defmodule BasicExamples do
       callback: fn params ->
         # Mock weather service call
         location = params["location"]
-        context = params["__context__"] || %{}
-        units = params["units"] || context[:preferences][:units] || "fahrenheit"
-        user_id = context[:user_id]
+        units = params["units"] || "fahrenheit"
 
-        IO.puts("  🌤️  Fetching weather for #{location} (user: #{user_id}, units: #{units})")
+        IO.puts("  🌤️  Fetching weather for #{location} (units: #{units})")
 
         # Mock weather data
         weather = %{
