@@ -45,7 +45,7 @@ defmodule ReqLLMChain.MixProject do
     [
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://github.com/your-org/req_llm_chain"
+        "GitHub" => "https://github.com/4bakker/req_llm_chain"
       }
     ]
   end
