@@ -81,7 +81,7 @@ defmodule BasicExamples do
     IO.puts("Custom context keys: #{Map.keys(chain.custom_context) |> Enum.join(", ")}")
 
     # In real usage with API keys:
-    # {:ok, final_chain, response} = ReqLLMChain.run_until_done(chain)
+    # {:ok, final_chain, response} = ReqLLMChain.run(chain)
     # IO.puts("Final response: #{response.text()}")
   end
 

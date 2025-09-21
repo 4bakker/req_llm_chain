@@ -29,13 +29,13 @@ defmodule ReqLLMChain do
         |> ReqLLMChain.user("What's the weather in NYC?")
         |> ReqLLMChain.tools([weather_tool])
         |> ReqLLMChain.context(%{api_key: "weather_key", user_id: 123})
-        |> ReqLLMChain.run_until_done()
+        |> ReqLLMChain.run()
 
       # Continue conversation
       {:ok, chain2, response2} =
         chain
         |> ReqLLMChain.user("What about tomorrow?")
-        |> ReqLLMChain.run_until_done()
+        |> ReqLLMChain.run()
 
   ## Comparison to LangChain
 
@@ -168,7 +168,7 @@ defmodule ReqLLMChain do
   @doc """
   Runs the conversation once and returns the response.
 
-  For tool calling scenarios, use `run_until_done/2` instead.
+  For tool calling scenarios, use `run/2` instead.
 
   ## Examples
 
@@ -180,8 +180,8 @@ defmodule ReqLLMChain do
       IO.puts(response.text())
 
   """
-  @spec run(Chain.t()) :: {:ok, Chain.t(), ReqLLM.Response.t()} | {:error, term()}
-  defdelegate run(chain), to: Chain
+  @spec run_once(Chain.t()) :: {:ok, Chain.t(), ReqLLM.Response.t()} | {:error, term()}
+  defdelegate run_once(chain), to: Chain
 
   @doc """
   Runs the conversation with automatic tool calling loops.
@@ -200,12 +200,12 @@ defmodule ReqLLMChain do
         chain
         |> ReqLLMChain.user("What's the weather in NYC and what should I wear?")
         |> ReqLLMChain.tools([weather_tool, clothing_tool])
-        |> ReqLLMChain.run_until_done()
+        |> ReqLLMChain.run()
 
   """
-  @spec run_until_done(Chain.t(), pos_integer()) ::
+  @spec run(Chain.t(), pos_integer()) ::
           {:ok, Chain.t(), ReqLLM.Response.t()} | {:error, term()}
-  defdelegate run_until_done(chain, max_iterations \\ 10), to: Chain
+  defdelegate run(chain, max_iterations \\ 10), to: Chain
 
   @doc """
   Streams the conversation response.

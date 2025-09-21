@@ -80,7 +80,7 @@ weather_tool = ReqLLM.Tool.new!(
     api_key: System.get_env("WEATHER_API_KEY"),
     user_id: 123
   })
-  |> ReqLLMChain.run_until_done()
+  |> ReqLLMChain.run()
 
 IO.puts response.text()
 # => "The current weather in New York City is sunny with a temperature of 72°F..."
@@ -103,7 +103,7 @@ ReqLLMChain.new("anthropic:claude-3-sonnet")
 
 ### 2. Automatic Tool Calling Loops ✅
 
-`run_until_done/2` automatically handles tool calling workflows:
+`run/2` automatically handles tool calling workflows:
 
 ```elixir
 # Will automatically:
@@ -117,7 +117,7 @@ ReqLLMChain.new("anthropic:claude-3-sonnet")
   |> ReqLLMChain.user("What should I wear in Seattle today?")
   |> ReqLLMChain.tools([weather_tool, clothing_tool])
   |> ReqLLMChain.context(%{user_preferences: %{style: "casual"}})
-  |> ReqLLMChain.run_until_done()
+  |> ReqLLMChain.run()
 ```
 
 ### 3. Conversation State Management ✅
@@ -230,7 +230,7 @@ chain = ReqLLMChain.new(model)
 ### Error Handling
 
 ```elixir
-case ReqLLMChain.run_until_done(chain, max_iterations: 5) do
+case ReqLLMChain.run(chain, max_iterations: 5) do
   {:ok, final_chain, response} ->
     IO.puts "Success: #{response.text()}"
     
@@ -288,7 +288,7 @@ chain = LLMChain.add_message(chain, Message.new_user!("Hello"))
   ReqLLMChain.new("openai:gpt-4")
   |> ReqLLMChain.system("You are helpful")
   |> ReqLLMChain.user("Hello")
-  |> ReqLLMChain.run_until_done()
+  |> ReqLLMChain.run()
 ```
 
 **Benefits of ReqLLMChain:**
@@ -296,7 +296,7 @@ chain = LLMChain.add_message(chain, Message.new_user!("Hello"))
 - ✅ 45+ providers vs 10
 - ✅ Automatic tool calling loops
 - ✅ Better error handling
-- ✅ Built on ReqLLM's superior architecture
+- ✅ Built on ReqLLM architecture
 
 ## License
 

@@ -44,7 +44,7 @@ ReqLLMChain.new("anthropic:claude-3-sonnet")
 |> ReqLLMChain.system("You are helpful")
 |> ReqLLMChain.user("Hello")
 |> ReqLLMChain.tools([my_tools])
-|> ReqLLMChain.run_until_done()
+|> ReqLLMChain.run()
 ```
 
 ### 2. **Conversation State Management**
@@ -229,7 +229,7 @@ chain = LLMChain.add_message(chain, Message.new_user!("Hello"))
 {:ok, chain, response} =
   ReqLLMChain.new("openai:gpt-4")
   |> ReqLLMChain.user("Hello")
-  |> ReqLLMChain.run_until_done()
+  |> ReqLLMChain.run()
 ```
 
 ### **Migration Benefits**
@@ -262,7 +262,7 @@ chain = LLMChain.add_message(chain, Message.new_user!("Hello"))
      |> ReqLLMChain.user("What's the weather?")
      |> ReqLLMChain.tools([weather_tool])
      |> ReqLLMChain.context(%{api_key: "..."})
-     |> ReqLLMChain.run_until_done()
+     |> ReqLLMChain.run()
    ```
 
 ## 🎉 Success Metrics

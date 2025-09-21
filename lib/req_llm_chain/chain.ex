@@ -93,8 +93,8 @@ defmodule ReqLLMChain.Chain do
   @doc """
   Runs the conversation once.
   """
-  @spec run(t()) :: {:ok, t(), ReqLLM.Response.t()} | {:error, term()}
-  def run(chain) do
+  @spec run_once(t()) :: {:ok, t(), ReqLLM.Response.t()} | {:error, term()}
+  def run_once(chain) do
     case ReqLLM.generate_text(chain.model, chain.context, build_req_options(chain)) do
       {:ok, response} ->
         updated_chain = %{chain | context: response.context}
@@ -108,21 +108,21 @@ defmodule ReqLLMChain.Chain do
   @doc """
   Runs the conversation with automatic tool calling loops.
   """
-  @spec run_until_done(t(), pos_integer()) :: {:ok, t(), ReqLLM.Response.t()} | {:error, term()}
-  def run_until_done(chain, max_iterations \\ 10)
+  @spec run(t(), pos_integer()) :: {:ok, t(), ReqLLM.Response.t()} | {:error, term()}
+  def run(chain, max_iterations \\ 10)
 
-  def run_until_done(_chain, 0) do
+  def run(_chain, 0) do
     {:error, :max_iterations_reached}
   end
 
-  def run_until_done(chain, iterations_left) do
-    case run(chain) do
+  def run(chain, iterations_left) do
+    case run_once(chain) do
       {:ok, updated_chain, response} ->
         if has_tool_calls?(response.message) do
           # Execute tools and continue the loop
           case execute_tool_calls(updated_chain, response, chain.custom_context) do
             {:ok, chain_with_results} ->
-              run_until_done(chain_with_results, iterations_left - 1)
+              run(chain_with_results, iterations_left - 1)
 
             error ->
               error

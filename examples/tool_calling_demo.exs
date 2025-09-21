@@ -67,7 +67,7 @@ defmodule ToolCallingDemo do
     IO.puts("   export OPENAI_API_KEY=your_openai_key")
     IO.puts("   export WEATHER_API_KEY=your_weather_key")
     IO.puts("3. Replace demo tools with real service integrations")
-    IO.puts("4. Call: {:ok, final_chain, response} = ReqLLMChain.run_until_done(chain)")
+    IO.puts("4. Call: {:ok, final_chain, response} = ReqLLMChain.run(chain)")
   end
 
   defp simulate_tool_execution(chain) do
