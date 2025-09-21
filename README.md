@@ -1,19 +1,6 @@
 # ReqLLMChain
 
-A lightweight conversation builder for [ReqLLM](https://hex.pm/packages/req_llm), providing LangChain-style builder patterns, tool calling loops, and conversation state management.
-
-## Why ReqLLMChain?
-
-**ReqLLMChain** gives you the developer experience of LangChain with the architectural benefits of ReqLLM:
-
-| Feature | ReqLLMChain | LangChain |
-|---------|-------------|-----------|
-| **Providers** | 45+ | 10 |
-| **Code complexity** | ~500 lines | 20,000+ lines |
-| **Architecture** | Simple structs | Complex Ecto schemas |
-| **Builder pattern** | ✅ | ✅ |
-| **Tool calling loops** | ✅ Automatic | ✅ Manual |
-| **Conversation state** | ✅ | ✅ |
+A conversation builder for [ReqLLM](https://hex.pm/packages/req_llm) with builder patterns, automatic tool calling loops, and conversation state management.
 
 ## Installation
 
@@ -86,11 +73,11 @@ IO.puts response.text()
 # => "The current weather in New York City is sunny with a temperature of 72°F..."
 ```
 
-## Key Features
+## Usage
 
-### 1. Builder Pattern ✅
+### Builder Pattern
 
-Fluent API for building conversations step by step:
+Build conversations step by step:
 
 ```elixir
 ReqLLMChain.new("anthropic:claude-3-sonnet")
@@ -101,17 +88,11 @@ ReqLLMChain.new("anthropic:claude-3-sonnet")
 |> ReqLLMChain.run()
 ```
 
-### 2. Automatic Tool Calling Loops ✅
+### Tool Calling
 
 `run/2` automatically handles tool calling workflows:
 
 ```elixir
-# Will automatically:
-# 1. Send user message to LLM
-# 2. LLM decides to call weather_tool
-# 3. Execute weather_tool with custom context
-# 4. Send tool result back to LLM  
-# 5. LLM provides final response
 {:ok, chain, response} =
   ReqLLMChain.new("openai:gpt-4")
   |> ReqLLMChain.user("What should I wear in Seattle today?")
@@ -120,32 +101,25 @@ ReqLLMChain.new("anthropic:claude-3-sonnet")
   |> ReqLLMChain.run()
 ```
 
-### 3. Conversation State Management ✅
+### Conversation State
 
-Maintains conversation history automatically:
+Access conversation history:
 
 ```elixir
 # Check conversation state
 messages = ReqLLMChain.messages(chain)
-length(messages) # => 6 (system, user, assistant, tool_call, tool_result, final_assistant)
+length(messages) # => 6 
 
 # Get text-only view
 text_content = ReqLLMChain.text_content(chain)
 IO.puts text_content
-# =>
-# [SYSTEM] You are a weather assistant
-# [USER] What should I wear in Seattle today?
-# [ASSISTANT] I'll check the weather for you.
-# [TOOL] Weather result: Rainy, 58°F
-# [ASSISTANT] Based on the weather, I recommend...
 ```
 
-### 4. Custom Context for Tools ✅
+### Custom Context for Tools
 
 Pass application-specific data to tools:
 
 ```elixir
-# Weather service that uses custom context
 defmodule WeatherService do
   def get_current_weather(params, context) do
     api_key = context.api_key
@@ -153,14 +127,13 @@ defmodule WeatherService do
     location = params["location"]
     
     # Use api_key to call weather service
-    # Log request for user_id
     # Return weather data
     {:ok, %{temperature: 72, condition: "sunny"}}
   end
 end
 ```
 
-## Streaming Support
+### Streaming
 
 ```elixir
 {:ok, chain, stream} =
@@ -176,35 +149,23 @@ stream
 |> Stream.run()
 ```
 
-## All ReqLLM Providers Supported
+## Supported Providers
 
-Use any of ReqLLM's 45+ providers:
+Works with any ReqLLM provider:
 
 ```elixir
-# Anthropic Claude
+# Provider:model format
 ReqLLMChain.new("anthropic:claude-3-5-sonnet")
-
-# OpenAI GPT
 ReqLLMChain.new("openai:gpt-4")
-
-# xAI Grok  
 ReqLLMChain.new("xai:grok-4")
-
-# Google Gemini
 ReqLLMChain.new("google:gemini-2.0-flash")
-
-# Groq (fast inference)
 ReqLLMChain.new("groq:llama-3.1-70b")
-
-# DeepSeek (coding focused)
 ReqLLMChain.new("deepseek:coder")
-
-# And 39+ more...
 ```
 
-## Advanced Usage
+## Configuration
 
-### Custom Model Configuration
+### Model Configuration
 
 ```elixir
 # With options
@@ -310,34 +271,6 @@ end
 # Additional examples available in examples/production_ready_example.exs
 ```
 
-## Comparison to LangChain
-
-If you're migrating from LangChain, here's how the APIs compare:
-
-### LangChain
-```elixir
-{:ok, chat} = ChatOpenAI.new!(%{model: "gpt-4"})
-{:ok, chain} = LLMChain.new!(%{llm: chat})
-chain = LLMChain.add_message(chain, Message.new_system!("You are helpful"))
-chain = LLMChain.add_message(chain, Message.new_user!("Hello"))
-{:ok, result} = LLMChain.run(chain, mode: :while_needs_response)
-```
-
-### ReqLLMChain
-```elixir
-{:ok, chain, response} =
-  ReqLLMChain.new("openai:gpt-4")
-  |> ReqLLMChain.system("You are helpful")
-  |> ReqLLMChain.user("Hello")
-  |> ReqLLMChain.run()
-```
-
-**Benefits of ReqLLMChain:**
-- ✅ Simpler, cleaner API
-- ✅ 45+ providers vs 10
-- ✅ Automatic tool calling loops
-- ✅ Better error handling
-- ✅ Built on ReqLLM architecture
 
 ## License
 
