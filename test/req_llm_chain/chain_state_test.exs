@@ -78,7 +78,7 @@ defmodule ReqLLMChain.ChainStateTest do
       assert length(ReqLLMChain.messages(chain1)) == 1
       assert length(ReqLLMChain.messages(chain2)) == 1
       assert length(ReqLLMChain.messages(chain3)) == 1
-      assert length(ReqLLMChain.messages(chain4)) == 0
+      assert ReqLLMChain.messages(chain4) == []
 
       # But chain4 should have tools
       assert length(chain4.tools) == 1

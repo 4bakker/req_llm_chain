@@ -118,22 +118,26 @@ defmodule ReqLLMChain.Chain do
   def run(chain, iterations_left) do
     case run_once(chain) do
       {:ok, updated_chain, response} ->
-        if has_tool_calls?(response.message) do
-          # Execute tools and continue the loop
-          case execute_tool_calls(updated_chain, response, chain.custom_context) do
-            {:ok, chain_with_results} ->
-              run(chain_with_results, iterations_left - 1)
-
-            error ->
-              error
-          end
-        else
-          # No tool calls - conversation is complete
-          {:ok, updated_chain, response}
-        end
+        handle_response_with_tools(updated_chain, response, chain.custom_context, iterations_left)
 
       error ->
         error
+    end
+  end
+
+  defp handle_response_with_tools(updated_chain, response, custom_context, iterations_left) do
+    if has_tool_calls?(response.message) do
+      # Execute tools and continue the loop
+      case execute_tool_calls(updated_chain, response, custom_context) do
+        {:ok, chain_with_results} ->
+          run(chain_with_results, iterations_left - 1)
+
+        error ->
+          error
+      end
+    else
+      # No tool calls - conversation is complete
+      {:ok, updated_chain, response}
     end
   end
 
@@ -161,8 +165,7 @@ defmodule ReqLLMChain.Chain do
   def text_content(chain) do
     chain.context
     |> ReqLLM.Context.to_list()
-    |> Enum.map(&extract_message_text/1)
-    |> Enum.join("\n\n")
+    |> Enum.map_join("\n\n", &extract_message_text/1)
   end
 
   @doc """
@@ -224,8 +227,7 @@ defmodule ReqLLMChain.Chain do
     text_parts =
       content
       |> Enum.filter(&(&1.type == :text))
-      |> Enum.map(& &1.text)
-      |> Enum.join(" ")
+      |> Enum.map_join(" ", & &1.text)
 
     case role do
       :system -> "[SYSTEM] #{text_parts}"
