@@ -24,7 +24,7 @@ defmodule BasicExamples do
 
     # Create a simple conversation
     chain =
-      ReqLLMChain.new("anthropic:claude-3-5-sonnet-20241022")
+      ReqLLMChain.new("openai:gpt-4")
       |> ReqLLMChain.system("You are a helpful math tutor")
       |> ReqLLMChain.user("What is 2 + 2?")
 
@@ -42,7 +42,7 @@ defmodule BasicExamples do
 
         {:error, %{__struct__: error_type} = error} when error_type in [ReqLLM.Error.API.Request, ReqLLM.Error.API.Authentication, ReqLLM.Error.Invalid.Parameter] ->
           IO.puts("⚠️  API error. To see real responses:")
-          IO.puts("   export ANTHROPIC_API_KEY=your_key")
+          IO.puts("   export OPENAI_API_KEY=your_key")
           if Map.has_key?(error, :reason) and error.reason do
             IO.puts("   Reason: #{error.reason}")
           end
@@ -54,7 +54,7 @@ defmodule BasicExamples do
     rescue
       error ->
         IO.puts("⚠️  API error. To see real responses:")
-        IO.puts("   export ANTHROPIC_API_KEY=your_key")
+        IO.puts("   export OPENAI_API_KEY=your_key")
         IO.puts("   Error: #{inspect(error)}")
     end
   end
@@ -130,9 +130,8 @@ defmodule BasicExamples do
     calculator_tool = create_calculator_tool()
 
     # Create a chain with tools and custom context
-    # Note: Using Anthropic for tool calling (better ReqLLM compatibility)
     chain =
-      ReqLLMChain.new("anthropic:claude-3-5-sonnet-20241022")
+      ReqLLMChain.new("openai:gpt-4")
       |> ReqLLMChain.system("You are a helpful assistant with access to weather and calculator tools")
       |> ReqLLMChain.user("What's 15 * 8 and also what's the weather like in San Francisco?")
       |> ReqLLMChain.tools([weather_tool, calculator_tool])
@@ -168,7 +167,7 @@ defmodule BasicExamples do
 
       {:error, %{__struct__: error_type} = error} when error_type in [ReqLLM.Error.API.Request, ReqLLM.Error.API.Authentication, ReqLLM.Error.Invalid.Parameter] ->
         IO.puts("⚠️  API error. To see real tool calling:")
-        IO.puts("   export ANTHROPIC_API_KEY=your_key")
+        IO.puts("   export OPENAI_API_KEY=your_key")
         if Map.has_key?(error, :reason) and error.reason do
           IO.puts("   Reason: #{error.reason}")
         end
