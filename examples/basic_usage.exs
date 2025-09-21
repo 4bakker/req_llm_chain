@@ -184,7 +184,7 @@ defmodule BasicExamples do
     rescue
       error ->
         IO.puts("⚠️  API error. To see real tool calling:")
-        IO.puts("   export ANTHROPIC_API_KEY=your_key")
+        IO.puts("   export OPENAI_API_KEY=your_key")
         IO.puts("   Error: #{inspect(error)}")
     end
   end
@@ -252,8 +252,7 @@ BasicExamples.run_all()
 
 IO.puts("\n✅ Examples completed!")
 IO.puts("\n💡 To see REAL LLM responses:")
-IO.puts("   1. Set your API keys:")
-IO.puts("      export ANTHROPIC_API_KEY=your_anthropic_key")
+IO.puts("   1. Set your API key:")
 IO.puts("      export OPENAI_API_KEY=your_openai_key")
 IO.puts("   2. Run again: elixir examples/basic_usage.exs")
 IO.puts("   3. Watch the magic happen! 🪄")
