@@ -24,7 +24,7 @@ defmodule ReqLLMChain.MixProject do
 
   defp deps do
     [
-      {:req_llm, "~> 1.0-rc"},
+      {:req_llm, ">= 1.0.0-rc.7"},
       {:jason, "~> 1.4"},
 
       # Dev dependencies
